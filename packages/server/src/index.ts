@@ -155,6 +155,8 @@ function handleMessage(socket: WebSocket, message: ClientMessage): void {
       }
       room.start();
       room.broadcast({ type: "room_update", room: room.view() });
+      if (room.state)
+        room.broadcast({ type: "game_update", state: room.state, events: [] });
       return;
     case "roll":
       room.handlePlayerAction(existing.color, { type: "roll" });
