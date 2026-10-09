@@ -5,6 +5,7 @@ import express from "express";
 import type { WebSocket } from "ws";
 import { WebSocketServer } from "ws";
 import type { ClientMessage, Color } from "engine";
+import { EMOTES } from "engine";
 import { InMemoryGameRepository } from "./repository.ts";
 import { Room } from "./room.ts";
 
@@ -163,6 +164,15 @@ function handleMessage(socket: WebSocket, message: ClientMessage): void {
         type: "move",
         pieceIndex: message.pieceIndex,
       });
+      return;
+    case "emote":
+      if ((EMOTES as readonly string[]).includes(message.emoji)) {
+        room.broadcast({
+          type: "emote",
+          color: existing.color,
+          emoji: message.emoji,
+        });
+      }
       return;
     case "leave_room":
       room.disconnect(existing.color);

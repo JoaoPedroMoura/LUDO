@@ -27,6 +27,9 @@ export const DEFAULT_ROOM_CONFIG: RoomConfig = {
 
 export type RoomStatus = "lobby" | "playing" | "finished";
 
+export const EMOTES = ["👍", "😂", "😮", "😡", "🎉", "🤔"] as const;
+export type Emote = (typeof EMOTES)[number];
+
 export interface RoomView {
   roomId: string;
   hostSeat: Color;
@@ -50,10 +53,12 @@ export type ClientMessage =
   | { type: "start_game" }
   | { type: "roll" }
   | { type: "move"; pieceIndex: number }
+  | { type: "emote"; emoji: Emote }
   | { type: "leave_room" };
 
 export type ServerMessage =
   | { type: "joined"; token: string; seat: Color; room: RoomView }
   | { type: "room_update"; room: RoomView }
   | { type: "game_update"; state: GameState; events: GameEvent[] }
+  | { type: "emote"; color: Color; emoji: Emote }
   | { type: "error"; message: string };
