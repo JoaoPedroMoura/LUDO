@@ -6,3 +6,4 @@ export { chooseAiMove } from "./ai.ts";
 export type { AiLevel } from "./ai.ts";
 export { simulateGame } from "./simulate.ts";
 export type { SimulateOptions, SimulateResult } from "./simulate.ts";
+export * from "./protocol.ts";
