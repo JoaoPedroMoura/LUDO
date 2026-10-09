@@ -2,7 +2,10 @@ import type { Color, GameConfig, GameState } from "./types.ts";
 import { DEFAULT_CONFIG } from "./types.ts";
 import { COLORS } from "./board.ts";
 
-export function createGame(players: Color[], config: Partial<GameConfig> = {}): GameState {
+export function createGame(
+  players: Color[],
+  config: Partial<GameConfig> = {},
+): GameState {
   if (players.length < 2 || players.length > 4) {
     throw new Error("Ludo precisa de 2 a 4 jogadores");
   }

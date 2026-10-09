@@ -32,13 +32,20 @@ export interface GameState {
   winner: Color | undefined;
 }
 
-export type Action = { type: "ROLL"; by: Color } | { type: "MOVE"; by: Color; pieceIndex: number };
+export type Action =
+  { type: "ROLL"; by: Color } | { type: "MOVE"; by: Color; pieceIndex: number };
 
 export type GameEvent =
   | { type: "DICE_ROLLED"; color: Color; value: number }
   | { type: "NO_LEGAL_MOVE"; color: Color }
   | { type: "PIECE_LEFT_BASE"; color: Color; pieceIndex: number }
-  | { type: "PIECE_MOVED"; color: Color; pieceIndex: number; from: number; to: number }
+  | {
+      type: "PIECE_MOVED";
+      color: Color;
+      pieceIndex: number;
+      from: number;
+      to: number;
+    }
   | { type: "PIECE_CAPTURED"; color: Color; pieceIndex: number; by: Color }
   | { type: "PIECE_FINISHED"; color: Color; pieceIndex: number }
   | { type: "EXTRA_TURN"; color: Color }

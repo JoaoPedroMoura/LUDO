@@ -9,10 +9,19 @@ function fixedDice(value: number): () => number {
   return () => (value - 1) / 6;
 }
 
-function rollAndMove(state: GameState, color: GameState["turnColor"], dice: number, pieceIndex: number) {
+function rollAndMove(
+  state: GameState,
+  color: GameState["turnColor"],
+  dice: number,
+  pieceIndex: number,
+) {
   const rolled = reduce(state, { type: "ROLL", by: color }, fixedDice(dice));
   assert.equal(rolled.ok, true);
-  return reduce(rolled.ok ? rolled.state : state, { type: "MOVE", by: color, pieceIndex });
+  return reduce(rolled.ok ? rolled.state : state, {
+    type: "MOVE",
+    by: color,
+    pieceIndex,
+  });
 }
 
 test("peão só sai da base tirando 6", () => {
@@ -21,7 +30,11 @@ test("peão só sai da base tirando 6", () => {
   assert.equal(rolledFour.ok, true);
   if (!rolledFour.ok) return;
   assert.deepEqual(getLegalMoves(rolledFour.state), []);
-  assert.equal(rolledFour.state.turnColor, "blue", "sem jogada válida, a vez passa");
+  assert.equal(
+    rolledFour.state.turnColor,
+    "blue",
+    "sem jogada válida, a vez passa",
+  );
 
   const state2 = createGame(["red", "blue"]);
   const rolledSix = reduce(state2, { type: "ROLL", by: "red" }, fixedDice(6));
@@ -60,7 +73,11 @@ test("captura peão adversário fora de casa segura", () => {
   assert.equal(result.ok, true);
   if (!result.ok) return;
   assert.equal(result.state.pieces.blue[0], 19);
-  assert.equal(result.state.pieces.red[0], 0, "red foi capturado e voltou pra base");
+  assert.equal(
+    result.state.pieces.red[0],
+    0,
+    "red foi capturado e voltou pra base",
+  );
   assert.ok(result.events.some((e) => e.type === "PIECE_CAPTURED"));
 });
 
@@ -74,7 +91,11 @@ test("casa segura não permite captura", () => {
   assert.equal(result.ok, true);
   if (!result.ok) return;
   assert.equal(result.state.pieces.blue[0], 14);
-  assert.equal(result.state.pieces.red[0], 1, "red fica parado na casa segura, não é capturado");
+  assert.equal(
+    result.state.pieces.red[0],
+    1,
+    "red fica parado na casa segura, não é capturado",
+  );
 });
 
 test("reta final: precisa cair exatamente no centro (passo 57)", () => {
@@ -84,7 +105,11 @@ test("reta final: precisa cair exatamente no centro (passo 57)", () => {
   const rolledTooFar = reduce(state, { type: "ROLL", by: "red" }, fixedDice(4));
   assert.equal(rolledTooFar.ok, true);
   if (!rolledTooFar.ok) return;
-  assert.deepEqual(getLegalMoves(rolledTooFar.state), [], "4 passaria do centro (55+4=59), inválido");
+  assert.deepEqual(
+    getLegalMoves(rolledTooFar.state),
+    [],
+    "4 passaria do centro (55+4=59), inválido",
+  );
 
   const result = rollAndMove(state, "red", 2, 0);
   assert.equal(result.ok, true);
@@ -111,8 +136,16 @@ test("vitória ao levar todos os peões ao centro", () => {
 test("jogadas inválidas são rejeitadas", () => {
   const state = createGame(["red", "blue"]);
 
-  assert.equal(reduce(state, { type: "ROLL", by: "blue" }).ok, false, "não é a vez de blue");
-  assert.equal(reduce(state, { type: "MOVE", by: "red", pieceIndex: 0 }).ok, false, "precisa rolar antes de mover");
+  assert.equal(
+    reduce(state, { type: "ROLL", by: "blue" }).ok,
+    false,
+    "não é a vez de blue",
+  );
+  assert.equal(
+    reduce(state, { type: "MOVE", by: "red", pieceIndex: 0 }).ok,
+    false,
+    "precisa rolar antes de mover",
+  );
 
   const rolled = reduce(state, { type: "ROLL", by: "red" }, fixedDice(3));
   assert.equal(rolled.ok, true);

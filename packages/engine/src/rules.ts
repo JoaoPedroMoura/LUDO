@@ -1,4 +1,10 @@
-import type { Action, ActionResult, Color, GameEvent, GameState } from "./types.ts";
+import type {
+  Action,
+  ActionResult,
+  Color,
+  GameEvent,
+  GameState,
+} from "./types.ts";
 import { HOME_STEPS } from "./board.ts";
 import { COLORS, isOnRing, isSafeRingIndex, ringIndex } from "./board.ts";
 
@@ -6,21 +12,36 @@ function cloneState(state: GameState): GameState {
   return structuredClone(state);
 }
 
-function canMove(state: GameState, color: Color, currentSteps: number, dice: number): boolean {
+function canMove(
+  state: GameState,
+  color: Color,
+  currentSteps: number,
+  dice: number,
+): boolean {
   if (currentSteps === HOME_STEPS) return false;
   if (currentSteps === 0) return dice === 6;
   const target = currentSteps + dice;
   if (target > HOME_STEPS) return false;
-  if (state.config.blockRule && isOnRing(target) && isBlockedByOpponent(state, color, ringIndex(color, target))) {
+  if (
+    state.config.blockRule &&
+    isOnRing(target) &&
+    isBlockedByOpponent(state, color, ringIndex(color, target))
+  ) {
     return false;
   }
   return true;
 }
 
-function isBlockedByOpponent(state: GameState, color: Color, targetRingIndex: number): boolean {
+function isBlockedByOpponent(
+  state: GameState,
+  color: Color,
+  targetRingIndex: number,
+): boolean {
   for (const other of COLORS) {
     if (other === color) continue;
-    const count = state.pieces[other].filter((s) => isOnRing(s) && ringIndex(other, s) === targetRingIndex).length;
+    const count = state.pieces[other].filter(
+      (s) => isOnRing(s) && ringIndex(other, s) === targetRingIndex,
+    ).length;
     if (count >= 2) return true;
   }
   return false;
@@ -38,7 +59,11 @@ export function getLegalMoves(state: GameState): number[] {
   return legal;
 }
 
-function resolveTurnEnd(state: GameState, rolledSix: boolean, events: GameEvent[]): GameState {
+function resolveTurnEnd(
+  state: GameState,
+  rolledSix: boolean,
+  events: GameEvent[],
+): GameState {
   const next = cloneState(state);
   next.pendingDice = undefined;
   const streak = rolledSix ? state.sixStreak + 1 : 0;
@@ -51,13 +76,24 @@ function resolveTurnEnd(state: GameState, rolledSix: boolean, events: GameEvent[
   const idx = state.players.indexOf(state.turnColor);
   next.turnColor = state.players[(idx + 1) % state.players.length]!;
   next.sixStreak = 0;
-  events.push({ type: "TURN_PASSED", from: state.turnColor, to: next.turnColor });
+  events.push({
+    type: "TURN_PASSED",
+    from: state.turnColor,
+    to: next.turnColor,
+  });
   return next;
 }
 
-function applyRoll(state: GameState, color: Color, rng: () => number): ActionResult {
+function applyRoll(
+  state: GameState,
+  color: Color,
+  rng: () => number,
+): ActionResult {
   if (state.pendingDice !== undefined) {
-    return { ok: false, reason: "já há um dado pendente, jogue uma peça antes de rolar de novo" };
+    return {
+      ok: false,
+      reason: "já há um dado pendente, jogue uma peça antes de rolar de novo",
+    };
   }
   const value = 1 + Math.floor(rng() * 6);
   const events: GameEvent[] = [{ type: "DICE_ROLLED", color, value }];
@@ -66,12 +102,20 @@ function applyRoll(state: GameState, color: Color, rng: () => number): ActionRes
 
   if (getLegalMoves(rolled).length === 0) {
     events.push({ type: "NO_LEGAL_MOVE", color });
-    return { ok: true, state: resolveTurnEnd(rolled, value === 6, events), events };
+    return {
+      ok: true,
+      state: resolveTurnEnd(rolled, value === 6, events),
+      events,
+    };
   }
   return { ok: true, state: rolled, events };
 }
 
-function applyMove(state: GameState, color: Color, pieceIndex: number): ActionResult {
+function applyMove(
+  state: GameState,
+  color: Color,
+  pieceIndex: number,
+): ActionResult {
   if (state.pendingDice === undefined) {
     return { ok: false, reason: "role o dado antes de mover uma peça" };
   }
@@ -79,7 +123,10 @@ function applyMove(state: GameState, color: Color, pieceIndex: number): ActionRe
     return { ok: false, reason: "peça inexistente" };
   }
   if (!getLegalMoves(state).includes(pieceIndex)) {
-    return { ok: false, reason: "jogada inválida para essa peça com esse dado" };
+    return {
+      ok: false,
+      reason: "jogada inválida para essa peça com esse dado",
+    };
   }
 
   const dice = state.pendingDice;
@@ -99,9 +146,17 @@ function applyMove(state: GameState, color: Color, pieceIndex: number): ActionRe
         if (other === color) continue;
         const otherSteps = next.pieces[other];
         for (let i = 0; i < otherSteps.length; i++) {
-          if (isOnRing(otherSteps[i]!) && ringIndex(other, otherSteps[i]!) === landedRing) {
+          if (
+            isOnRing(otherSteps[i]!) &&
+            ringIndex(other, otherSteps[i]!) === landedRing
+          ) {
             otherSteps[i] = 0;
-            events.push({ type: "PIECE_CAPTURED", color: other, pieceIndex: i, by: color });
+            events.push({
+              type: "PIECE_CAPTURED",
+              color: other,
+              pieceIndex: i,
+              by: color,
+            });
           }
         }
       }
@@ -122,7 +177,11 @@ function applyMove(state: GameState, color: Color, pieceIndex: number): ActionRe
   return { ok: true, state: resolveTurnEnd(next, dice === 6, events), events };
 }
 
-export function reduce(state: GameState, action: Action, rng: () => number = Math.random): ActionResult {
+export function reduce(
+  state: GameState,
+  action: Action,
+  rng: () => number = Math.random,
+): ActionResult {
   if (state.status === "finished") {
     return { ok: false, reason: "a partida já terminou" };
   }

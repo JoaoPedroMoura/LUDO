@@ -16,7 +16,10 @@ export const HOME_STEPS = 57;
 export const HOME_ENTRY_STEP = 51;
 
 const SAFE_SQUARES: ReadonlySet<number> = new Set(
-  COLORS.flatMap((color) => [START_OFFSET[color], (START_OFFSET[color] + 8) % RING_LENGTH]),
+  COLORS.flatMap((color) => [
+    START_OFFSET[color],
+    (START_OFFSET[color] + 8) % RING_LENGTH,
+  ]),
 );
 
 /** Índice (0-51) no anel comum ocupado por uma peça com `steps` passos dados por `color`. */
