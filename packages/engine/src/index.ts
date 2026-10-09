@@ -1,2 +1,4 @@
-// Motor de regras do Ludo (puro, sem I/O). Implementado na etapa 2.
-export const ENGINE_VERSION = "0.0.0";
+export * from "./types.ts";
+export * from "./board.ts";
+export { createGame } from "./state.ts";
+export { reduce, getLegalMoves } from "./rules.ts";
